@@ -1,0 +1,88 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+// stack structure
+#define MAX 100
+
+// stack structure to hold integer values
+struct stack {
+    int items[MAX];
+    int top;
+};
+
+// Function to initialize the stack
+void initstack(struct stack *s) {
+    s->top = -1;  // Initialize stack to be empty
+}
+
+// Function to check if the stack is full
+int isfull(struct stack *s) {
+    return s->top == MAX - 1;
+}
+
+// Function to check if the stack is empty
+int isempty(struct stack *s) {
+    return s->top == -1;
+}
+
+// Function to push an item onto the stack
+void push(struct stack *s, int item) {
+    if (isfull(s)) {
+        printf("Stack overflow\n");
+        return;
+    }
+    s->items[++(s->top)] = item;
+}
+
+// Function to pop an item from the stack
+int pop(struct stack *s) {
+    if (isempty(s)) {
+        printf("Stack underflow\n");
+        return -1;
+    }
+    return s->items[(s->top)--];
+}
+
+// Function to evaluate a postfix expression
+int evaluatePostfix(char *expression) {
+    struct stack s;
+    initstack(&s);
+    
+    // Traverse the postfix expression
+    for (int i = 0; expression[i] != '\0'; i++) {
+        char token = expression[i];
+        
+        // If the token is a digit, push it onto the stack
+        if (isdigit(token)) {
+            push(&s, token - '0');
+        }
+        // If the token is an operator, pop two operands and apply the operator
+        else if (token == '+' || token == '-' || token == '*' || token == '/') {
+            int operand2 = pop(&s);
+            int operand1 = pop(&s);
+            int result;
+            
+            switch (token) {
+                case '+': result = operand1 + operand2; break;
+                case '-': result = operand1 - operand2; break;
+                case '*': result = operand1 * operand2; break;
+                case '/': result = operand1 / operand2; break;
+                default:
+                    printf("Invalid operator\n");
+                    return -1;
+            }
+            push(&s, result);
+        }
+    }
+    
+    // The final result should be the only item left in the stack
+    return pop(&s);
+}
+
+int main() {
+    char expression[] = "53+12-*";  // Example postfix expression
+    int result = evaluatePostfix(expression);
+    printf("Result of postfix expression '%s' is: %d\n", expression, result);
+    return 0;
+}
